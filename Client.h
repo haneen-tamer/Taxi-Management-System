@@ -1,3 +1,6 @@
+#ifndef CLIENT_H
+#define CLIENT_H
+
 #include<iostream>
 #include<vector>
 #include<queue>
@@ -20,3 +23,4 @@ public:
     void load_client(ifstream &f);
 };
 
+#endif

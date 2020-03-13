@@ -22,10 +22,10 @@ class DriverWindow : public QMainWindow
 
 public:
     explicit DriverWindow(QWidget *parent = nullptr);
-    void set_DataStructures(vector<Trip> &NewTrips,
-    vector<Trip> &AllTrips,
-    map<QString, Driver> &AllDrivers,
-    queue<Driver> &AvailableDrivers);
+    void set_DataStructures(vector<Trip*> &NewTrips,
+    vector<Trip*> &AllTrips,
+    map<QString, Driver*> &AllDrivers,
+    queue<Driver*> &AvailableDrivers);
     ~DriverWindow();
 
 private slots:
@@ -55,11 +55,11 @@ private slots:
 
 private:
     Ui::DriverWindow *ui;
-    Driver *d1 = new Driver();
-    vector<Trip> *NewTrips;
-    vector<Trip> *AllTrips;
-    queue<Driver>*AvailableDrivers;
-    map<QString, Driver> *AllDrivers;
+    Driver *d1 ;
+    vector<Trip*> *NewTrips;
+    vector<Trip*> *AllTrips;
+    queue<Driver*>*AvailableDrivers;
+    map<QString, Driver*> *AllDrivers;
 };
 
 #endif // DRIVERWINDOW_H

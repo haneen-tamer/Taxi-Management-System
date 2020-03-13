@@ -37,7 +37,3 @@ void Password::set_pass(string p) {
 string Password::get_pass() {
     return pass;
 }
-
-Password::~Password()
-{
-}

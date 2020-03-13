@@ -35,7 +35,7 @@ Driver::Driver(QString line)//reading file
     }
     else
         status=false;
-    driver_car = new car(l[5]);
+    //driver_car = new car(l[5]);
 }
 bool Driver::check_ID(QString id1)
 {
@@ -93,8 +93,6 @@ QString Driver::get_savable_line()
     else {
         s="unavailable";
     }
-    return Id+" "+name+" "+salary+" "+t+" "+s+" "+ driver_car->get_saveable_line();
+    return Id+" "+name+" "+salary+" "+t+" "+s+" ";//+ driver_car->get_saveable_line();
 }
-Driver::~Driver()
-{
-}
+

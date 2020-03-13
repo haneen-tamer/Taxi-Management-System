@@ -7,15 +7,16 @@ DriverWindow::DriverWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->DriverStack->setCurrentIndex(0);
-    load_Drivers();
+
 }
 
-void DriverWindow::set_DataStructures(vector<Trip> &nt, vector<Trip> &at,
-    map<QString, Driver> &ad, queue<Driver> &av){
+void DriverWindow::set_DataStructures(vector<Trip*> &nt, vector<Trip*> &at,
+    map<QString, Driver*> &ad, queue<Driver*> &av){
     NewTrips = &nt;
     AllTrips = &at;
     AllDrivers = &ad;
     AvailableDrivers = &av;
+    load_Drivers();
 }
 
 DriverWindow::~DriverWindow()
@@ -32,25 +33,26 @@ void DriverWindow::on_pushButton_2_clicked()
 void DriverWindow::on_change_status_btn_clicked()
 {
     //og code
-    d1->change_status(!d1->get_status());
+
     if (d1->get_status())
     {   //pop driver from queue
-        Driver *temp_d = new Driver();
+        Driver *temp_d;
         int size = AvailableDrivers->size();
         for (int i = 0; i < size; i++)
         {
-            *temp_d = AvailableDrivers->front();
+            temp_d = AvailableDrivers->front();
             AvailableDrivers->pop();
-            if (d1 != temp_d)
+            if (!d1->check_ID(temp_d->get_driver_ID()))
             {
-                AvailableDrivers->push(*temp_d);
+                AvailableDrivers->push(temp_d);
             }
-            delete temp_d;
+            //delete temp_d;
         }
     }
     else {
-        AvailableDrivers->push(*d1);
+        AvailableDrivers->push(d1);
     }
+    d1->change_status(!d1->get_status());
     set_status();
 }
 
@@ -72,7 +74,7 @@ void DriverWindow::on_request_btn_clicked()
       {
           for (int i = 0; i < NewTrips->size(); i++)
           {
-              if (d1->check_ID((*NewTrips)[i].get_driverID()))
+              if (d1->check_ID((*NewTrips)[i]->get_driverID()))
               {
                   if (!d1->check_in_trip())//recive request
                   {
@@ -80,7 +82,7 @@ void DriverWindow::on_request_btn_clicked()
                       //QString ct = ;
 
                   }
-                  ui->view_current_trip->setText((*NewTrips)[i].get_printable_line());
+                  ui->view_current_trip->setText((*NewTrips)[i]->get_printable_line());
                   ui->DriverStack->setCurrentIndex(3);
                   break;
               }
@@ -101,10 +103,10 @@ void DriverWindow::on_view_btn_clicked()
 {
     QStringListModel* m=new QStringListModel(this);
     QStringList list;
-    vector<Trip>::iterator it;
+    vector<Trip*>::iterator it;
     for(it=AllTrips->begin();it!=AllTrips->end();it++)
     {
-       list.append(it->get_printable_line());
+       list.append((*it)->get_printable_line());
     }
     m->setStringList(list);
     ui->trip_history->setModel(m);
@@ -120,7 +122,7 @@ void DriverWindow::on_pushButton_clicked()//login
 {
     if(ui->id_txt_box->text()!="")
     {
-       map<QString, Driver>::iterator it;
+       map<QString, Driver*>::iterator it;
        it = AllDrivers->find(ui->id_txt_box->text());
        if (it == AllDrivers->end())
        {
@@ -130,7 +132,8 @@ void DriverWindow::on_pushButton_clicked()//login
            ui->id_txt_box->clear();
            return;
        }
-       d1 = &it->second;
+       d1 = it->second;
+       AvailableDrivers->push(d1);
        ui->DriverStack->setCurrentIndex(1);
     }
     else
@@ -162,10 +165,10 @@ void DriverWindow::on_home_from_trip_btn_clicked()
 void DriverWindow::on_end_trip_btn_clicked()
 {
     d1->end_trip();
-    AvailableDrivers->push(*d1);
+    AvailableDrivers->push(d1);
     for(int j=0;j < NewTrips->size();j++)
     {
-        if(d1->check_ID((*NewTrips)[j].get_driverID()))
+        if(d1->check_ID((*NewTrips)[j]->get_driverID()))
         {
             AllTrips->push_back((*NewTrips)[j]);
             NewTrips->erase(NewTrips->begin() + j);//delete trip from new trips
@@ -186,8 +189,8 @@ void DriverWindow::load_Drivers(){
        QTextStream in(&file);
         while(!in.atEnd()){
             QString line = in.readLine();
-            Driver d(line);
-            (*AllDrivers)[d.get_driver_ID()]= d; //.insert(make_pair<QString, Driver>(d.get_driver_ID(),d));
+            Driver *d = new Driver(line);
+            (*AllDrivers)[d->get_driver_ID()]= d; //.insert(make_pair<QString, Driver>(d.get_driver_ID(),d));
         }
         file.close();
     }
@@ -202,12 +205,12 @@ void DriverWindow::save_Drivers(){
         return;
     }else{
        QTextStream out(&file);
-       map<QString, Driver>::iterator it;
+       map<QString, Driver*>::iterator it;
         for(it = AllDrivers->begin(); it!=AllDrivers->end(); it++){
             if(it!=AllDrivers->begin())
                 out<<endl;
-            out<< it->second.get_savable_line();
-
+            out<< it->second->get_savable_line();
+            delete (it->second);
         }
         file.flush();
         file.close();

@@ -25,8 +25,8 @@ class AdminWindow : public QMainWindow
 
 public:
     explicit AdminWindow(QWidget *parent = nullptr);
-    void setTrips(vector<Trip>&trip);
-    void setDrivers(map<QString,Driver>&d);
+    void setTrips(vector<Trip*>&trip);
+    void setDrivers(map<QString,Driver*>&d);
     void load_trips();
     void save_trips();
     ~AdminWindow();
@@ -53,9 +53,9 @@ private slots:
 
 private:
     Ui::AdminWindow *ui;
-    map<QString, Admin> admins;
-    vector<Trip> *t ;
-    map<QString,Driver> *drivermap;
+    map<QString, Admin*> admins;
+    vector<Trip*> *t ;
+    map<QString,Driver*> *drivermap;
 };
 
 #endif // ADMINWINDOW_H

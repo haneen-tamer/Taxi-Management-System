@@ -12,7 +12,7 @@ public:
     void read_pass();
     void set_pass(string p);
     string get_pass();
-    ~Password();
+
 };
 
 #endif // PASSWORD_H

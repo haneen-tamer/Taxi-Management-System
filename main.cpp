@@ -17,10 +17,10 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    vector<Trip> NewTrips;
-    vector<Trip> AllTrips;
-    map<QString, Driver> AllDrivers;
-    queue<Driver>AvailableDrivers;
+    vector<Trip*> NewTrips;
+    vector<Trip*> AllTrips;
+    map<QString, Driver*> AllDrivers;
+    queue<Driver*>AvailableDrivers;
     //client path
     ClientWindow c;
     c.set_client_ds(AllTrips, NewTrips, AvailableDrivers);

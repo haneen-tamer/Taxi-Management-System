@@ -9,11 +9,11 @@ AdminWindow::AdminWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     load();
-    load_trips();
+
     ui->stack->setCurrentIndex(0);
 }
 
-void AdminWindow::setDrivers(map<QString,Driver>&d){
+void AdminWindow::setDrivers(map<QString,Driver*>&d){
     drivermap = &d;
 }
 
@@ -42,9 +42,9 @@ void AdminWindow::on_pushButton_clicked()
     car c(ui->lineEdit_4->text(),ui->lineEdit_5->text(),
           ui->lineEdit_6->text(),ui->lineEdit_7->text());
 
-    Driver d(ui->lineEdit->text(),ui->lineEdit_2->text(),
+    Driver *d= new Driver(ui->lineEdit->text(),ui->lineEdit_2->text(),
              ui->lineEdit_3->text(),c);
-    (*drivermap)[d.get_driver_ID()]=d;
+    (*drivermap)[d->get_driver_ID()]=d;
     ui->stack->setCurrentIndex(1);
     //clear text boxes
     ui->lineEdit_4->clear();
@@ -74,7 +74,7 @@ void AdminWindow::on_pushButton_4_clicked()
 
 void AdminWindow::on_loginButton_clicked()
 {
-   map<QString, Admin>::iterator it;
+   map<QString, Admin*>::iterator it;
     it = admins.find(ui->id_txt_box->text());
     if(it==admins.end()){
         QMessageBox * msgBox= new QMessageBox();
@@ -82,7 +82,7 @@ void AdminWindow::on_loginButton_clicked()
                      msgBox->show();
     }
    else{
-        if(it->second.check_password(ui->pass_txt_box->text())){
+        if(it->second->check_password(ui->pass_txt_box->text())){
             ui->stack->setCurrentIndex(1);
             ui->pass_txt_box->clear();
             ui->id_txt_box->clear();
@@ -107,17 +107,18 @@ void AdminWindow::on_viewAllButton_clicked()
      ui->stack->setCurrentIndex(2);
      QStringListModel * model = new QStringListModel(this);
      QStringList list;
-     vector<Trip>::iterator it;
+     vector<Trip*>::iterator it;
      for(it=t->begin();it<t->end();it++){
-       list.append( it->get_printable_line());
+       list.append( (*it)->get_printable_line());
      }
 
      model->setStringList(list);
      ui->listView->setModel(model);
 }
 
-void AdminWindow::setTrips(vector<Trip>&trip){
+void AdminWindow::setTrips(vector<Trip*>&trip){
    t=&trip;
+   load_trips();
 }
 
 void AdminWindow::load(){
@@ -133,8 +134,8 @@ void AdminWindow::load(){
 
         while(!in.atEnd()){
             QString line = in.readLine();
-            Admin a(line);
-            admins[a.get_name()]=a;
+            Admin *a= new Admin(line);
+            admins[a->get_name()]=a;
         }
         file.close();
     }
@@ -152,8 +153,8 @@ void AdminWindow::load_trips(){
                QTextStream in(&file);
                 while(!in.atEnd()){
                     QString line = in.readLine();
-                    Trip trip(line);
-                    t->push_back(trip);
+                    //Trip *trip= new Trip(line);
+                    t->push_back(new Trip(line));
                 }
                 file.close();
             }
@@ -168,11 +169,12 @@ void AdminWindow::save_trips(){
         return;
     }else{
        QTextStream out(&file);
-       vector<Trip>::iterator it;
+       vector<Trip*>::iterator it;
         for(it = t->begin(); it!=t->end(); it++){
             if(it!=t->begin())
                 out<<endl;
-            out<<it->get_saveable_line();
+            out<<(*it)->get_saveable_line();
+            delete (*it);
         }
         file.flush();
         file.close();

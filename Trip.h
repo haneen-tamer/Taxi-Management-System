@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TRIP_H
+#define TRIP_H
 
 #include<QString>
 #include<QStringList>
@@ -18,3 +19,4 @@ public:
     QString get_clientID();
 };
 
+#endif

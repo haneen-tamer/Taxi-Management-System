@@ -27,7 +27,7 @@ public:
     QString get_driver_ID();
     bool get_status();
     void end_trip();
-    ~Driver();
+
 };
 
 #endif // DRIVER_H

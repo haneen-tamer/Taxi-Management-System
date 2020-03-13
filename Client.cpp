@@ -34,7 +34,7 @@ bool Client::check_pass(QString password) {
 
 
 QString Client::get_client_id() {
-    return id;
+    return this->id;
 }
 QString Client::get_client_name() {
     return name;

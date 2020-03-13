@@ -1,3 +1,6 @@
+#ifndef CAR_H
+#define CAR_H
+
 #pragma once
 
 #include <iostream>
@@ -19,3 +22,4 @@ public:
     QString get_printable_line();
 };
 
+#endif

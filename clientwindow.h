@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include"Client.h"
 #include"Driver.h"
+#include<iostream>
 #include<map>
 #include<QListWidget>
 #include<QString>
@@ -12,6 +13,7 @@
 #include<QStringListModel>
 #include<QFile>
 #include<QTextStream>
+using namespace std;
 
 namespace Ui{
 class ClientWindow;
@@ -23,7 +25,7 @@ class ClientWindow : public QMainWindow
 
 public:
     explicit ClientWindow(QWidget *parent = nullptr);
-    void set_client_ds(vector<Trip>& at, vector<Trip>& nt,queue<Driver> & av );
+    void set_client_ds(vector<Trip*>& at, vector<Trip*>& nt,queue<Driver*> & av );
     ~ClientWindow();
 
 private slots:
@@ -48,9 +50,9 @@ private slots:
 private:
     Ui::ClientWindow *ui;
     Client * loggedIn;
-    map<QString, Client> clients;
-    vector<Trip>* AllTrips, *NewTrips;
-    queue<Driver>* avail_driver;
+    map<QString, Client*> clients;
+    vector<Trip*>* AllTrips, *NewTrips;
+    queue<Driver*>* avail_driver;
 };
 
 #endif // CLIENTWINDOW_H

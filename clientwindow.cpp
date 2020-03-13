@@ -7,13 +7,14 @@ ClientWindow::ClientWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->ClientStack->setCurrentIndex(0);
-    load_from_file();
+
 }
 
-void ClientWindow::set_client_ds(vector<Trip>& at, vector<Trip>& nt,queue<Driver> & av ){
+void ClientWindow::set_client_ds(vector<Trip*>& at, vector<Trip*>& nt,queue<Driver*> & av ){
     AllTrips = &at;
     NewTrips = &nt;
     avail_driver = &av;
+    load_from_file();
 }
 
 ClientWindow::~ClientWindow()
@@ -29,15 +30,15 @@ void ClientWindow::on_register_btn_clicked()
 
 void ClientWindow::on_login_btn_clicked()
 {
-    map<QString, Client>::iterator it;
+    map<QString, Client*>::iterator it;
     it = clients.find(ui->id_txt_box->text());
     if(it== clients.end()){
         QMessageBox* m = new QMessageBox;
         m->setText("ID not found!");
         m->show();
     }else{
-        if(it->second.check_pass(ui->pass_txt_box->text())){
-            loggedIn = &(it->second);
+        if(it->second->check_pass(ui->pass_txt_box->text())){
+            loggedIn = (it->second);
             ui->ClientStack->setCurrentIndex(1);
             ui->id_txt_box->clear();
             ui->pass_txt_box->clear();
@@ -58,9 +59,9 @@ void ClientWindow::on_logout_btn_clicked()
 void ClientWindow::on_request_btn_clicked()
 {
     //handle on trip
-    vector<Trip>::iterator it;
+    vector<Trip*>::iterator it;
     for(it = NewTrips->begin(); it!=NewTrips->end(); it++){
-        if(it->get_clientID() == loggedIn->get_client_id()){
+        if((*it)->get_clientID() == loggedIn->get_client_id()){
             QMessageBox* m = new QMessageBox;
             m->setText("You are currently on trip. Please wait untill trip ends before requesting another...");
             m->show();
@@ -74,14 +75,14 @@ void ClientWindow::on_request_btn_clicked()
         m->show();
     }else{
         //handle request
-        Driver d = avail_driver->front();
+        Driver* d = avail_driver->front();
         avail_driver->pop();
-        Trip request(ui->Date_txt_box->text(), ui->end_txt_box->text(), ui->beg_txt_box->text());
-        request.set_client(loggedIn->get_client_id());
-        request.set_driver(d.get_driver_ID());
+        Trip *request= new Trip(ui->Date_txt_box->text(), ui->end_txt_box->text(), ui->beg_txt_box->text());
+        request->set_client(loggedIn->get_client_id());
+        request->set_driver(d->get_driver_ID());
         NewTrips->push_back(request);
         //display reguest
-        ui->current_trip_display->setText(request.get_printable_line());
+        ui->current_trip_display->setText(request->get_printable_line());
         ui->ClientStack->setCurrentIndex(3);
         //clear text  boxes
         ui->Date_txt_box->clear();
@@ -106,10 +107,10 @@ void ClientWindow::on_view_client_history_btn_clicked()
     //past trips
     QStringListModel * model = new QStringListModel(this);
     QStringList list;
-    vector<Trip>::iterator it;
+    vector<Trip*>::iterator it;
     for(it = AllTrips->begin(); it!=AllTrips->end(); it++){
-        if(it->get_clientID() == loggedIn->get_client_id()){
-            list.append(it->get_printable_line());
+        if((*it)->get_clientID() == loggedIn->get_client_id()){
+            list.append((*it)->get_printable_line());
         }
     }
     //check empty
@@ -124,8 +125,8 @@ void ClientWindow::on_view_client_history_btn_clicked()
 
     //current trip
     for(it = NewTrips->begin(); it!=NewTrips->end(); it++){
-        if(it->get_clientID() == loggedIn->get_client_id()){
-            ui->current_trip->setText(it->get_printable_line());
+        if((*it)->get_clientID() == loggedIn->get_client_id()){
+            ui->current_trip->setText((*it)->get_printable_line());
             break;
         }
     }
@@ -135,7 +136,7 @@ void ClientWindow::on_view_client_history_btn_clicked()
 
 void ClientWindow::on_register_btn_add_clicked()
 {
-    map<QString, Client>::iterator it;
+    map<QString, Client*>::iterator it;
     it = clients.find(ui->id_txt_box_2->text());
     if(it != clients.end()){
         QMessageBox* m = new QMessageBox;
@@ -144,10 +145,11 @@ void ClientWindow::on_register_btn_add_clicked()
         return;
     }
     if(ui->pass_txt_box_2->text() == ui->pas_rentry_txt_box->text()){
-        Client c(ui->name_txt_box->text(),
+        Client *c= new Client(ui->name_txt_box->text(),
                  ui->id_txt_box_2->text(),
                  ui->pass_txt_box->text());
-        clients[c.get_client_id()] = c;
+        clients[c->get_client_id()] = c;
+        this->loggedIn = c;
         ui->ClientStack->setCurrentIndex(1);
         ui->name_txt_box->clear();
         ui->id_txt_box_2->clear();
@@ -171,8 +173,8 @@ void ClientWindow::load_from_file(){
        QTextStream in(&file);
         while(!in.atEnd()){
             QString line = in.readLine();
-            Client c(line);
-            clients[c.get_client_id()] = c;
+            Client *c= new Client(line);
+            clients[c->get_client_id()] = c;
         }
         file.close();
     }
@@ -187,11 +189,13 @@ void ClientWindow::save_to_File(){
         return;
     }else{
        QTextStream out(&file);
-       map<QString, Client>::iterator it;
+       map<QString, Client*>::iterator it;
         for(it = clients.begin(); it!=clients.end(); it++){
             if(it!=clients.begin())
                 out<<endl;
-            out<<it->second.get_saveable_line();
+            out<<it->second->get_saveable_line();
+            delete (it->second);
+           // cout<<it->second.get_saveable_line().toStdString();
         }
         file.flush();
         file.close();
